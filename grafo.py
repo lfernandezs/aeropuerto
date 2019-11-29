@@ -55,7 +55,7 @@ class Grafo:
     def vertice_aleatorio(self):
         ''' Devuelve un vertice aleatorio '''
         if self.cantidad == 0: return None
-        return random.choice(self.grafo)
+        return random.choice(list(self.grafo))
 
 
     def son_adyacentes(self, vertice_1, vertice_2):
@@ -84,10 +84,10 @@ class Grafo:
         for vertice in self.grafo: vertices.append(vertice)
         return vertices
 
-    def obtener_artistas(self):
+    def obtener_aristas(self):
         ''' Devuelve una lista de tuplas: (vertice, adyacente, peso) '''
         aristas = []
         for vertice in self.grafo:
             for adyacente in self.grafo[vertice]:
-                aristas.append(vertice, adyacente, self.grafo[vertice][adyacente])
+                aristas.append((vertice, adyacente, self.grafo[vertice][adyacente]))
         return aristas
