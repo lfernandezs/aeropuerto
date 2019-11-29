@@ -39,10 +39,12 @@ class Grafo:
     def quitar_arista(self, vertice_1, vertice_2):
         ''' Recibe dos vértices y si están unidos, los separa, devuelve True '''
         if vertice_1 in self.grafo and vertice_2 in self.grafo:
-            self.grafo[vertice_1].pop(vertice_2)
-            self.grafo[vertice_2].pop(vertice_1)
-            return True
-        return False
+            if vertice_2 in self.grafo[vertice_1]:
+                self.grafo[vertice_1].pop(vertice_2)
+                self.grafo[vertice_2].pop(vertice_1)
+                return True
+            return False
+        raise ValueError("El vértice no pertenece al grafo")
 
     def vertice_pertenece(self, vertice):
         ''' Devuelve True si el vértice pertenece al grafo '''
@@ -54,20 +56,20 @@ class Grafo:
 
     def vertice_aleatorio(self):
         ''' Devuelve un vertice aleatorio '''
-        if self.cantidad == 0: return None
+        if self.cantidad == 0: raise ValueError("El grafo no tiene vértices")
         return random.choice(list(self.grafo))
 
 
     def son_adyacentes(self, vertice_1, vertice_2):
         ''' Devuelve True si los vertices que recibió son adyacentes '''
-        if not vertice_1 in self.grafo: return False
+        if not vertice_1 in self.grafo and not vertice_2 in self.grafo: raise ValueError("El vértice no pertenece al grafo")
         return vertice_2 in self.grafo[vertice_1]
 
     def peso_arista(self, vertice_1, vertice_2):
         ''' Recibe dos vértices y si están unidos, devuelve su peso '''
         if self.son_adyacentes(vertice_1, vertice_2):
             return self.grafo[vertice_1][vertice_2]
-        return None
+        raise ValueError("No son adyacentes.")
 
     def adyacentes(self, vertice):
         ''' Devuelve una lista con los adyacentes al vértice, sino existe: None '''
