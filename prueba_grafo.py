@@ -1,6 +1,6 @@
 from grafo import Grafo
 from pila import Pila
-from biblioteca import bfs, dfs, orden_topologico_bfs, orden_topologico_dfs
+from biblioteca import bfs, dfs, orden_topologico_bfs, orden_topologico_dfs, dijkstra
 from testing import print_test, print_titulo
 
 def pruebas_excepciones():
@@ -196,7 +196,7 @@ def prueba_bfs():
     print_test("Padre de 2 es 3", padres["2"] == "3")
     print_test("Padre de 1 es 2", padres["1"] == "2")
     print_test("Padre de 5 es 2", padres["5"] == "2")
-    print_test("Padre de 4 es 1 o 5", padres["4"] == "1" or padre["4"] == "5")
+    print_test("Padre de 4 es 1 o 5", padres["4"] == "1" or padres["4"] == "5")
 
 def prueba_dfs():
 
@@ -260,6 +260,35 @@ def prueba_orden_topologico():
             orden_topologico_dfs(g, v, pila, visitados)
     print("DFS:", pila.pila_a_lista())
 
+def prueba_dijkstra():
+
+    ''' Declaración de variables '''
+    g = Grafo()
+    g.agregar_vertice("1")
+    g.agregar_vertice("2")
+    g.agregar_vertice("3")
+    g.agregar_vertice("4")
+    g.agregar_vertice("5")
+    g.agregar_arista("3", "2", 1)
+    g.agregar_arista("2", "1", 10)
+    g.agregar_arista("2", "5", 2)
+    g.agregar_arista("4", "1", 3)
+    g.agregar_arista("4", "5", 2)
+
+    ''' Inicio de pruebas '''
+    print_titulo("\nPRUEBAS DIJKSTRA\n")
+    padre, dist = dijkstra(g, "3")
+    print_test("El padre de 1 es 4", padre["1"] == "4")
+    print_test("El padre de 2 es 3", padre["2"] == "3")
+    print_test("El padre de 3 es None", padre["3"] == None)
+    print_test("El padre de 4 es 5", padre["4"] == "5")
+    print_test("El padre de 5 es 2", padre["5"] == "2")
+    print_test("La distancia a 1 es 8", dist["1"] == 8)
+    print_test("La distancia a 2 es 1", dist["2"] == 1)
+    print_test("La distancia a 3 es 0", dist["3"] == 0)
+    print_test("La distancia a 4 es 5", dist["4"] == 5)
+    print_test("La distancia a 5 es 3", dist["5"] == 3)
+
 def pruebas(): # FALTAN PRUEBAS GRAFO DIRIGIDO
     pruebas_excepciones()
     prueba_iterar()
@@ -269,5 +298,6 @@ def pruebas(): # FALTAN PRUEBAS GRAFO DIRIGIDO
     prueba_bfs()
     prueba_dfs()
     prueba_orden_topologico()
+    prueba_dijkstra()
 
 pruebas()

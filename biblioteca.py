@@ -1,6 +1,7 @@
 from grafo import Grafo
 from cola import Cola
 from pila import Pila
+from heap import Heap
 
 def bfs(grafo,  origen):
     visitados = set()
@@ -57,3 +58,25 @@ def orden_topologico_dfs(grafo, v, pila, visitados):
         if w not in visitados:
             orden_topologico_dfs(grafo, w, pila, visitados)
     pila.apilar(v)
+
+def dijkstra(grafo, origen):
+    dist = {}
+    padre = {}
+    for v in grafo: dist[v] = float("inf")
+    dist[origen] = 0
+    padre[origen] = None
+    q = Heap(cmp_tuplas)
+    q.encolar((dist[origen], origen))
+    while not q.esta_vacio():
+        v = q.desencolar()[1]
+        for w in grafo.adyacentes(v):
+            if dist[v] + grafo.peso_arista(v, w) < dist[w]:
+                dist[w] = dist[v] + grafo.peso_arista(v, w)
+                padre[w] = v
+                q.encolar((dist[w], w))
+    return padre, dist
+
+def cmp_tuplas(tupla1, tupla2):
+    if tupla1[0] > tupla2[0]: return -1
+    if tupla1[0] < tupla2[0]: return 1
+    return 0
