@@ -12,7 +12,7 @@ class Cola:
 
     def desencolar(self):
         ''' Elimina el primer elemento de la cola y lo devuelve.
-        Si la cola está vacía, devuelve None '''
+        Si la cola está vacía, lanza una excepción '''
         if self.esta_vacia(): raise ValueError("La cola está vacía.")
         return self.items.pop(0)
 
@@ -22,6 +22,7 @@ class Cola:
 
     def ver_primero(self):
         ''' Devuelve el primer elemento de la cola '''
+        if self.esta_vacia(): raise ValueError("La cola está vacía.")
         return self.items[0]
 
     

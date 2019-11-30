@@ -1,12 +1,21 @@
 import random
 
 class Grafo:
-    ''' Representa un Grafo no dirigido, pesado '''
+    ''' Representa un Grafo '''
 
-    def __init__(self):
+    def __init__(self, dirigido = False):
         ''' Crea el grafo '''
         self.grafo = {}
         self.cantidad = 0
+        self.dirigido = dirigido
+
+    def __iter__(self):
+        ''' Devuelve un iterador del grafo '''
+        return iter(self.obtener_vertices())
+    
+    def __len__(self):
+        ''' Devuelve el largo del grafo '''
+        return len(self.grafo)
 
     def agregar_vertice(self, vertice):
         ''' Recibe un vértice inmutable y lo agrega al grafo, devuelve True '''
@@ -27,21 +36,23 @@ class Grafo:
             return True
         return False
 
-    def agregar_arista(self, vertice_1, vertice_2, peso):
-        ''' Recibe dos vertices inmutables y un peso y los une, devuelve True.
+    def agregar_arista(self, vertice_1, vertice_2, peso=0):
+        ''' Recibe dos vertices inmutables y un peso y los une.
         Si la arista ya existía, se modifica el peso. ''' 
         if vertice_1 in self.grafo and vertice_2 in self.grafo:
             self.grafo[vertice_1][vertice_2] = peso
-            self.grafo[vertice_2][vertice_1] = peso
+            if not self.dirigido:
+                self.grafo[vertice_2][vertice_1] = peso
             return True
-        return False
+        raise ValueError("El vértice no pertenece al grafo")
 
     def quitar_arista(self, vertice_1, vertice_2):
         ''' Recibe dos vértices y si están unidos, los separa, devuelve True '''
         if vertice_1 in self.grafo and vertice_2 in self.grafo:
             if vertice_2 in self.grafo[vertice_1]:
                 self.grafo[vertice_1].pop(vertice_2)
-                self.grafo[vertice_2].pop(vertice_1)
+                if not self.dirigido:
+                    self.grafo[vertice_2].pop(vertice_1)
                 return True
             return False
         raise ValueError("El vértice no pertenece al grafo")
@@ -72,13 +83,13 @@ class Grafo:
         raise ValueError("No son adyacentes.")
 
     def adyacentes(self, vertice):
-        ''' Devuelve una lista con los adyacentes al vértice, sino existe: None '''
+        ''' Devuelve una lista con los adyacentes al vértice. '''
         adyacentes = []
         if vertice in self.grafo:
             for v in self.grafo[vertice]:
                 adyacentes.append(v)
             return adyacentes
-        return None
+        raise ValueError("El vértice no pertenece al grafo")
 
     def obtener_vertices(self):
         ''' Devuelve una lista con los vértices del grafo '''
