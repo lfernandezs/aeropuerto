@@ -59,13 +59,13 @@ def orden_topologico_dfs(grafo, v, pila, visitados):
             orden_topologico_dfs(grafo, w, pila, visitados)
     pila.apilar(v)
 
-def dijkstra(grafo, origen):
+def dijkstra(grafo, origen, cmp_func): # función de comparación
     dist = {}
     padre = {}
     for v in grafo: dist[v] = float("inf")
     dist[origen] = 0
     padre[origen] = None
-    q = Heap(cmp_tuplas)
+    q = Heap(cmp_func)
     q.encolar((dist[origen], origen))
     while not q.esta_vacio():
         v = q.desencolar()[1]
@@ -80,3 +80,23 @@ def cmp_tuplas(tupla1, tupla2):
     if tupla1[0] > tupla2[0]: return -1
     if tupla1[0] < tupla2[0]: return 1
     return 0
+
+def mst_prim(grafo, cmp_func): # función de comparación
+    vertice = grafo.vertice_aleatorio()
+    visitados = set()
+    visitados.add(vertice)
+    q = Heap(cmp_func)
+    for w in grafo.adyacentes(vertice):
+        q.encolar((grafo.peso(vertice, w), vertice, w))
+    arbol = Grafo()
+    for v in grafo:
+        arbol.agregar_vertice(v)
+    while not q.esta_vacio():
+        peso, v, w = q.desencolar
+        if w in visitados: continue
+        arbol.agregar_arista(v, w, peso)
+        visitados.add(w)
+        for x in grafo.adyacentes(v):
+            if x not in visitados:
+                q.encolar((w, x, grafo.peso(w, x)))
+    return arbol

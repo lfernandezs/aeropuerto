@@ -136,7 +136,7 @@ def agregar_quitar_vertices():
     print_test("La cantidad es 0", g.cantidad_vertices() == 0)
     print_test("Quitar vertice que no pertenece devuelve False", not g.quitar_vertice(d))
 
-def agregar_quitar_aristas():
+def agregar_quitar_aristas(): # Dirigido
 
     ''' Declaración de variables '''
     g = Grafo()
@@ -155,18 +155,18 @@ def agregar_quitar_aristas():
     print_test("Obtener peso devuelve 10", g.peso_arista(a, b) == 10)
     print_test("Obtener peso devuelve 20", g.peso_arista(b, c) == 20)
     print_test("Obtener peso devuelve 30", g.peso_arista(c, a) == 30)
-    print_test("Los adyacentes a 'A' son 'B' y 'C'", b in g.adyacentes(a) and c in g.adyacentes(a) and len(g.adyacentes(a)) == 2)
-    print_test("Los adyacentes a 'B' son 'A' y 'C'", a in g.adyacentes(b) and c in g.adyacentes(b) and len(g.adyacentes(b)) == 2)
-    print_test("Los adyacentes a 'C' son 'B' y 'A'", a in g.adyacentes(c) and b in g.adyacentes(c) and len(g.adyacentes(c)) == 2)
+    print_test("El adyacente a 'A' es 'B' y no 'C'", b in g.adyacentes(a) and not c in g.adyacentes(a) and len(g.adyacentes(a)) == 1)
+    print_test("El adyacente a 'B' son 'C' y no 'A'", not a in g.adyacentes(b) and c in g.adyacentes(b) and len(g.adyacentes(b)) == 1)
+    print_test("El adyacente a 'C' son 'A' y no 'B'", a in g.adyacentes(c) and not b in g.adyacentes(c) and len(g.adyacentes(c)) == 1)
     print_test("Quitar arista entre 'A' y 'B' devuelve True", g.quitar_arista(a, b))
     print_test("'A' y 'B' no son adyacentes", b not in g.adyacentes(a) and a not in g.adyacentes(b))
-    aristas = [('A', 'C', 30), ('C', 'A', 30), ('B', 'C', 20), ('C', 'B', 20)]
+    aristas = [('C', 'A', 30), ('B', 'C', 20)]
     estado = True
     for arista in g.obtener_aristas():
         if not arista in aristas:
             estado = False
-    print_test("obtener_aristas devuelve todas las aristas", estado and len(g.obtener_aristas()) == 2*2)
-    print_test("A y C son adyacentes", g.son_adyacentes(a, c))
+    print_test("obtener_aristas devuelve todas las aristas", estado and len(g.obtener_aristas()) == 2)
+    print_test("A y C no son adyacentes", not g.son_adyacentes(a, c))
     print_test("A y B no son adyacentes", not g.son_adyacentes(a, b))
 
 def prueba_bfs():
@@ -289,7 +289,7 @@ def prueba_dijkstra():
     print_test("La distancia a 4 es 5", dist["4"] == 5)
     print_test("La distancia a 5 es 3", dist["5"] == 3)
 
-def pruebas(): # FALTAN PRUEBAS GRAFO DIRIGIDO
+def pruebas():
     pruebas_excepciones()
     prueba_iterar()
     grafo_vacio()

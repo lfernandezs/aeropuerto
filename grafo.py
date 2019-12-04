@@ -3,7 +3,7 @@ import random
 class Grafo:
     ''' Representa un Grafo '''
 
-    def __init__(self, dirigido = False):
+    def __init__(self, dirigido = True):
         ''' Crea el grafo '''
         self.grafo = {}
         self.cantidad = 0
