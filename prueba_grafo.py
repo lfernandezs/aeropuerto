@@ -3,6 +3,8 @@ from pila import Pila
 from biblioteca import bfs, dfs, orden_topologico_bfs, orden_topologico_dfs, dijkstra
 from testing import print_test, print_titulo
 
+def peso_func(x): return x
+
 def pruebas_excepciones():
 
     ''' Declaración de variables '''
@@ -44,13 +46,13 @@ def pruebas_excepciones():
     except ValueError:
         print_test("Obtener si son adyacentes dos vértices que no existen, da una excepción", True)
     try:
-        g.peso_arista("A", "B")
+        g.peso_arista("A", "B", peso_func)
     except ValueError:
         print_test("Obtener peso de aristas que no existen, da una excepción", True)
     g.agregar_vertice("A")
     g.agregar_vertice("B")
     try:
-        g.peso_arista("A", "B")
+        g.peso_arista("A", "B", peso_func)
     except ValueError:
         print_test("Obtener peso de aristas que no son adyacentes, da una excepción", True)
     try:
@@ -152,9 +154,9 @@ def agregar_quitar_aristas(): # Dirigido
     print_test("Agregar arista devuelve True", g.agregar_arista(a, b, 10))
     print_test("Agregar arista devuelve True", g.agregar_arista(b, c, 20))
     print_test("Agregar arista devuelve True", g.agregar_arista(c, a, 30))
-    print_test("Obtener peso devuelve 10", g.peso_arista(a, b) == 10)
-    print_test("Obtener peso devuelve 20", g.peso_arista(b, c) == 20)
-    print_test("Obtener peso devuelve 30", g.peso_arista(c, a) == 30)
+    print_test("Obtener peso devuelve 10", g.peso_arista(a, b, peso_func) == 10)
+    print_test("Obtener peso devuelve 20", g.peso_arista(b, c, peso_func) == 20)
+    print_test("Obtener peso devuelve 30", g.peso_arista(c, a, peso_func) == 30)
     print_test("El adyacente a 'A' es 'B' y no 'C'", b in g.adyacentes(a) and not c in g.adyacentes(a) and len(g.adyacentes(a)) == 1)
     print_test("El adyacente a 'B' son 'C' y no 'A'", not a in g.adyacentes(b) and c in g.adyacentes(b) and len(g.adyacentes(b)) == 1)
     print_test("El adyacente a 'C' son 'A' y no 'B'", a in g.adyacentes(c) and not b in g.adyacentes(c) and len(g.adyacentes(c)) == 1)
@@ -172,7 +174,7 @@ def agregar_quitar_aristas(): # Dirigido
 def prueba_bfs():
 
     ''' Declaración de variables '''
-    g = Grafo()
+    g = Grafo(False)
     g.agregar_vertice("1")
     g.agregar_vertice("2")
     g.agregar_vertice("3")
@@ -201,7 +203,7 @@ def prueba_bfs():
 def prueba_dfs():
 
     ''' Declaración de variables '''
-    g = Grafo()
+    g = Grafo(False)
     g.agregar_vertice("1")
     g.agregar_vertice("2")
     g.agregar_vertice("3")
@@ -263,7 +265,7 @@ def prueba_orden_topologico():
 def prueba_dijkstra():
 
     ''' Declaración de variables '''
-    g = Grafo()
+    g = Grafo(False)
     g.agregar_vertice("1")
     g.agregar_vertice("2")
     g.agregar_vertice("3")
@@ -277,7 +279,7 @@ def prueba_dijkstra():
 
     ''' Inicio de pruebas '''
     print_titulo("\nPRUEBAS DIJKSTRA\n")
-    padre, dist = dijkstra(g, "3")
+    padre, dist = dijkstra(g, "3", peso_func)
     print_test("El padre de 1 es 4", padre["1"] == "4")
     print_test("El padre de 2 es 3", padre["2"] == "3")
     print_test("El padre de 3 es None", padre["3"] == None)

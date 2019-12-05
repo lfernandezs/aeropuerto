@@ -76,10 +76,11 @@ class Grafo:
         if not vertice_1 in self.grafo and not vertice_2 in self.grafo: raise ValueError("El vértice no pertenece al grafo")
         return vertice_2 in self.grafo[vertice_1]
 
-    def peso_arista(self, vertice_1, vertice_2):
-        ''' Recibe dos vértices y si están unidos, devuelve su peso '''
+    def peso_arista(self, vertice_1, vertice_2, peso_func):
+        ''' Recibe dos vértices y si están unidos, devuelve su peso. También
+        recibe una función para devolver el peso (el peso no necesariamente es un entero). '''
         if self.son_adyacentes(vertice_1, vertice_2):
-            return self.grafo[vertice_1][vertice_2]
+            return peso_func(self.grafo[vertice_1][vertice_2])
         raise ValueError("No son adyacentes.")
 
     def adyacentes(self, vertice):
