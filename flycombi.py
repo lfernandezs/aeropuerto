@@ -2,22 +2,27 @@ import sys
 from grafo import Grafo
 from biblioteca import *
 
-COMANDOS = ("listar_operaciones", "camino_mas", "salir")
+COMANDOS = ("listar_operaciones", "camino_mas", "camino_escalas", "salir")
 
 dict_aeropuertos = {}
 grafo_vuelos = Grafo(True)
+
+'''********************************************************
+*             FUNCION PRINCIPAL DEL PROGRAMA              *
+********************************************************'''
 
 def main(argv, dict_aeropuertos, grafo_vuelos):
     # Cargar datos
     if not cargar_datos(argv, dict_aeropuertos, grafo_vuelos): return
     # Valido la entrada
-    print('3')
     entrada = ""
     while entrada != "salir":
         entrada = input("Ingrese un comando: ")
         validar_entrada(entrada.split(' '))
 
 def cargar_datos(argv, dict_aeropuertos, grafo_vuelos):
+    ''' Carga los destinos en un diccionario con sus aeropuertos
+    como valor y los vuelos en un grafo.'''
     if len(argv) != 3: return False # Mensaje?
     ruta_aeropuertos = argv[1]
     ruta_vuelos = argv[2]
@@ -30,53 +35,99 @@ def cargar_datos(argv, dict_aeropuertos, grafo_vuelos):
     with open(ruta_vuelos, 'r') as f_vuelos:
         for linea in f_vuelos:
             i, j, tiempo, precio, vuelos = linea.split(',')
-            grafo_vuelos.agregar_arista(i, j, (precio, tiempo, vuelos)) # El peso es una tupla
+            grafo_vuelos.agregar_arista(i, j, (int(precio), int(tiempo), int(vuelos))) # El peso es una tupla
     return True
 
-def validar_entrada(entrada):
+def validar_entrada(entrada): # Faltan validar cosas
     if not entrada[0] in COMANDOS:
         print("El comando", entrada[0], "no existe.")
         return
     if entrada[0] == COMANDOS[0]: listar_operaciones()
     elif entrada[0] == COMANDOS[1]:
-        if len(entrada) != 4: return print_error(entrada[0])
-        modo, origen, destino = entrada[1].split(',')
-        camino_mas(modo, origen, destino)
-    elif entrada[0] == COMANDOS[1]: return
+        modo, origen, destino = ' '.join(entrada[1:]).split(',')
+        return camino_mas(modo, origen, destino)
+    elif entrada[0] == COMANDOS[2]:
+        origen, destino = ' '.join(entrada[1:]).split(',')
+        return camino_escalas(origen, destino)
+    elif entrada[0] == COMANDOS[-1]: return
 
-
+'''********************************************************
+*               IMPLEMENTACIÓN DE COMANDOS                *
+********************************************************'''
 
 def listar_operaciones():
     for comando in COMANDOS: print(comando)
 
 def camino_mas(modo, origen, destino):
+    ''' Dijkstra '''
     modos = {'barato':barato, 'rapido':rapido}
     if not modo in modos or not origen in dict_aeropuertos or not destino in dict_aeropuertos: return print_error(COMANDOS[1])
+    trayecto = obtener_camino(origen, destino, dijkstra, modos[modo])
+    if not trayecto: return print("No hay forma de llegar.")
+    for v in trayecto[:0:-1]: print(v, end='->')
+    print(trayecto[0])
+
+def camino_escalas(origen, destino):
+    ''' BFS '''
+    if not origen in dict_aeropuertos or not destino in dict_aeropuertos: return print_error(COMANDOS[2])
+    trayecto = obtener_camino(origen, destino, bfs, None)
+    if not trayecto: return print("No hay forma de llegar.")
+    for v in trayecto[:0:-1]: print(v, end='->')
+    print(trayecto[0])
+
+#def centralidad(n)
+    ''' Betweeness Centrality '''
+
+
+#def centralidad_aprox(n)
+    ''' Betweeness Centrality aprox '''
+
+#def pagerank(n)
+    ''' Pagerank '''
+
+#def nueva_aerolinea(ruta, ruta_salida)
+    ''' Árbol de tendido mínimo '''
+
+#def recorrer_mundo(origen)
+
+#def recorrer_mundo_aprox(origen)
+
+#def vacaciones(origen, n)
+    ''' Backtracking '''
+
+#def itinerario(ruta)
+    ''' Orden Topológico '''
+
+#def exportar_kml(archivo)
+
+'''********************************************************
+*                 FUNCIONES AUXILIARES                    *
+********************************************************'''
+
+''' validaciones '''
+def print_error(comando): print(f"Error en comando {comando}")
+
+''' camino_escalas '''
+def barato(peso): return peso[0]
+
+def rapido(peso): return peso[1]
+
+def obtener_camino(origen, destino, func, extra): # func es la función que se utiliza para obtener el camino.
     aerop_destino = None
     padres = None
     dist = float('inf')
     trayecto = []
     for v in dict_aeropuertos[origen]:
         for w in dict_aeropuertos[destino]:
-            padres_aux, dist_aux = dijkstra(grafo_vuelos, v, modos[modo])
+            if extra: padres_aux, dist_aux = func(grafo_vuelos, v, extra)
+            else: padres_aux, dist_aux = func(grafo_vuelos, v)
             if dist_aux[w] < dist:
                 aerop_destino = w
                 dist = dist_aux
                 padres = padres_aux
-    if dist == float('inf'): print("No hay forma de llegar.")
-    while padres[aerop_destino] != None:
+    while aerop_destino != None:
         trayecto.append(aerop_destino)
         aerop_destino = padres[aerop_destino]
-    for v in trayecto[-1]: print(v, end='->')
-    print(aerop_destino)  
-
-
-def barato(peso): return peso[0]
-
-def rapido(peso): return peso[1]
-
-def print_error(comando): print(f"Error en comando {comando}")
-
-    
+    return trayecto
 
 main(sys.argv, dict_aeropuertos, grafo_vuelos)
