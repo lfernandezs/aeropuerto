@@ -2,10 +2,11 @@ import sys
 from grafo import Grafo
 from biblioteca import *
 
-COMANDOS = ("listar_operaciones", "camino_mas", "camino_escalas", "salir")
+COMANDOS = ("listar_operaciones", "camino_mas", "camino_escalas", "nueva_aerolinea", "salir")
 
 dict_aeropuertos = {}
 grafo_vuelos = Grafo(True)
+grafo_rutas = Grafo(False)
 
 '''********************************************************
 *             FUNCION PRINCIPAL DEL PROGRAMA              *
@@ -30,12 +31,14 @@ def cargar_datos(argv, dict_aeropuertos, grafo_vuelos):
         for linea in f_aeropuertos:
             ciudad, codigo, lat, lon = linea.split(',') # Lat y lon?
             grafo_vuelos.agregar_vertice(codigo)
+            grafo_rutas.agregar_vertice(codigo)
             if ciudad in dict_aeropuertos: dict_aeropuertos[ciudad].append(codigo)
             else: dict_aeropuertos[ciudad] = [codigo]
     with open(ruta_vuelos, 'r') as f_vuelos:
         for linea in f_vuelos:
             i, j, tiempo, precio, vuelos = linea.split(',')
             grafo_vuelos.agregar_arista(i, j, (int(precio), int(tiempo), int(vuelos))) # El peso es una tupla
+            grafo_rutas.agregar_arista(i, j, (int(precio), int(tiempo), int(vuelos))) # Ver si es necesario todo esto
     return True
 
 def validar_entrada(entrada): # Faltan validar cosas
@@ -49,6 +52,8 @@ def validar_entrada(entrada): # Faltan validar cosas
     elif entrada[0] == COMANDOS[2]:
         origen, destino = ' '.join(entrada[1:]).split(',')
         return camino_escalas(origen, destino)
+    elif entrada[0] == COMANDOS[3]:
+        return nueva_aerolinea(entrada[1])
     elif entrada[0] == COMANDOS[-1]: return
 
 '''********************************************************
@@ -85,8 +90,14 @@ def camino_escalas(origen, destino):
 #def pagerank(n)
     ''' Pagerank '''
 
-#def nueva_aerolinea(ruta, ruta_salida)
+def nueva_aerolinea(ruta):
     ''' Árbol de tendido mínimo '''
+    with open(ruta, 'w') as f:
+        rutas = mst_prim(grafo_rutas, barato) 
+        for v in rutas:
+            for w in rutas.adyacentes(v):
+                f.write(f'{v}, {w}\n')
+    print('OK')
 
 #def recorrer_mundo(origen)
 

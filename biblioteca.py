@@ -82,22 +82,21 @@ def cmp_tuplas(tupla1, tupla2):
     if tupla1[0] < tupla2[0]: return 1
     return 0
 
-def mst_prim(grafo): # función de comparación
-    vertice = grafo.vertice_aleatorio()
+def mst_prim(grafo, peso_func): # función de comparación
+    v = grafo.vertice_aleatorio()
     visitados = set()
-    visitados.add(vertice)
+    visitados.add(v)
     q = Heap(cmp_tuplas)
-    for w in grafo.adyacentes(vertice):
-        q.encolar((grafo.peso(vertice, w), vertice, w))
     arbol = Grafo()
-    for v in grafo:
-        arbol.agregar_vertice(v)
+    for vertice in grafo: arbol.agregar_vertice(vertice)
+    for w in grafo.adyacentes(v):
+        q.encolar((grafo.peso_arista(v, w, peso_func), v, w))
     while not q.esta_vacio():
-        peso, v, w = q.desencolar
+        peso, v, w = q.desencolar()
         if w in visitados: continue
         arbol.agregar_arista(v, w, peso)
         visitados.add(w)
-        for x in grafo.adyacentes(v):
-            if x not in visitados:
-                q.encolar((w, x, grafo.peso(w, x)))
+        for u in grafo.adyacentes(w):
+            if u not in visitados:
+                q.encolar((grafo.peso_arista(w, u, peso_func), w, u))
     return arbol
