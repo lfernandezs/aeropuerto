@@ -70,6 +70,16 @@ class Grafo:
         if self.cantidad == 0: raise ValueError("El grafo no tiene vértices")
         return random.choice(list(self.grafo))
 
+    def vertice_aleatorio_peso(self, pesos):
+        ''' Devuelve un vértice aleatorio, priorizando los que tengan aristas de más peso.
+        pesos en un diccionario de vertice_vecino:peso. '''
+        total = sum(pesos.values())
+        rand = random.uniform(0, total)
+        acum = 0
+        for vertice, peso_arista in pesos.items():
+            if acum + peso_arista >= rand:
+                return vertice
+            acum += peso_arista
 
     def son_adyacentes(self, vertice_1, vertice_2):
         ''' Devuelve True si los vertices que recibió son adyacentes '''
@@ -90,7 +100,7 @@ class Grafo:
             for v in self.grafo[vertice]:
                 adyacentes.append(v)
             return adyacentes
-        raise ValueError("El vértice no pertenece al grafo")
+        raise ValueError(f"El vértice {vertice} no pertenece al grafo")
 
     def obtener_vertices(self):
         ''' Devuelve una lista con los vértices del grafo '''

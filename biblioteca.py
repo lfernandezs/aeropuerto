@@ -100,3 +100,20 @@ def mst_prim(grafo, peso_func): # función de comparación
             if u not in visitados:
                 q.encolar((grafo.peso_arista(w, u, peso_func), w, u))
     return arbol
+
+def cent_random_walks(grafo, k, l, peso_func):
+    cent = {}
+    for v in grafo: cent[v] = 0
+    for i in range(k):
+        origen = grafo.vertice_aleatorio()
+        for j in range(l):
+            pesos = {}
+            for v in grafo.adyacentes(origen):
+                if v != None: pesos[v] = grafo.peso_arista(origen, v, peso_func)
+            origen = grafo.vertice_aleatorio_peso(pesos)
+            if not origen: break
+            cent[origen] += 1
+    return cent
+
+
+

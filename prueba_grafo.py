@@ -1,6 +1,6 @@
 from grafo import Grafo
 from pila import Pila
-from biblioteca import bfs, dfs, orden_topologico_bfs, orden_topologico_dfs, dijkstra
+from biblioteca import bfs, dfs, orden_topologico_bfs, orden_topologico_dfs, dijkstra, cent_random_walks
 from testing import print_test, print_titulo
 
 def peso_func(x): return x
@@ -291,6 +291,21 @@ def prueba_dijkstra():
     print_test("La distancia a 4 es 5", dist["4"] == 5)
     print_test("La distancia a 5 es 3", dist["5"] == 3)
 
+def prueba_cent_random_walks():
+    g = Grafo(False)
+    g.agregar_vertice("1")
+    g.agregar_vertice("2")
+    g.agregar_vertice("3")
+    g.agregar_vertice("4")
+    g.agregar_vertice("5")
+    g.agregar_arista("3", "2", 1)
+    g.agregar_arista("2", "1", 1)
+    g.agregar_arista("2", "5", 1)
+    g.agregar_arista("4", "1", 1)
+    g.agregar_arista("4", "5", 1)
+    cent = cent_random_walks(g, 5, 5, peso_func)
+    print(cent)
+
 def pruebas():
     pruebas_excepciones()
     prueba_iterar()
@@ -301,5 +316,6 @@ def pruebas():
     prueba_dfs()
     prueba_orden_topologico()
     prueba_dijkstra()
+    prueba_cent_random_walks()
 
 pruebas()

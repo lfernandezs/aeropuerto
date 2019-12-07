@@ -2,7 +2,7 @@ import sys
 from grafo import Grafo
 from biblioteca import *
 
-COMANDOS = ("listar_operaciones", "camino_mas", "camino_escalas", "nueva_aerolinea", "salir")
+COMANDOS = ("listar_operaciones", "camino_mas", "camino_escalas", "nueva_aerolinea", "centralidad_aprox", "salir")
 
 dict_aeropuertos = {}
 grafo_vuelos = Grafo(True)
@@ -54,6 +54,8 @@ def validar_entrada(entrada): # Faltan validar cosas
         return camino_escalas(origen, destino)
     elif entrada[0] == COMANDOS[3]:
         return nueva_aerolinea(entrada[1])
+    elif entrada[0] == COMANDOS[4]:
+        return centralidad_aprox(int(entrada[1]))
     elif entrada[0] == COMANDOS[-1]: return
 
 '''********************************************************
@@ -84,8 +86,13 @@ def camino_escalas(origen, destino):
     ''' Betweeness Centrality '''
 
 
-#def centralidad_aprox(n)
+def centralidad_aprox(n): # Checkeaer si cent_random_walks está bien implementado
     ''' Betweeness Centrality aprox '''
+    cent = cent_random_walks(grafo_vuelos, 10, 10, frecuencia)
+    aux = [(k, v) for k, v in cent.items()]
+    aux = sorted(aux, key=lambda x: x[1], reverse=True)
+    for i in range(n-1): print(aux[i][0], end=', ')
+    print(aux[n-1][0])
 
 #def pagerank(n)
     ''' Pagerank '''
@@ -100,8 +107,10 @@ def nueva_aerolinea(ruta):
     print('OK')
 
 #def recorrer_mundo(origen)
+    '''BackTracking?'''
 
 #def recorrer_mundo_aprox(origen)
+    '''Greedy?'''
 
 #def vacaciones(origen, n)
     ''' Backtracking '''
@@ -122,6 +131,8 @@ def print_error(comando): print(f"Error en comando {comando}")
 def barato(peso): return peso[0]
 
 def rapido(peso): return peso[1]
+
+def frecuencia(peso): return peso[2]
 
 def obtener_camino(origen, destino, func, extra): # func es la función que se utiliza para obtener el camino.
     aerop_destino = None
