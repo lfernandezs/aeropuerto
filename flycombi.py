@@ -2,11 +2,14 @@ import sys
 from grafo import Grafo
 from biblioteca import *
 
-COMANDOS = ("listar_operaciones", "camino_mas", "camino_escalas", "nueva_aerolinea", "centralidad_aprox", "salir")
+COMANDOS = ("listar_operaciones", "camino_mas", "camino_escalas", "nueva_aerolinea", "centralidad_aprox", "exportar_kml",
+"salir")
 
 dict_aeropuertos = {}
 grafo_vuelos = Grafo(True)
 grafo_rutas = Grafo(False)
+coordenadas = {}
+ultima_salida = "NAR->SHE->RIV->WAC->BAT" # Ir actualizando esto
 
 '''********************************************************
 *             FUNCION PRINCIPAL DEL PROGRAMA              *
@@ -34,6 +37,7 @@ def cargar_datos(argv, dict_aeropuertos, grafo_vuelos):
             grafo_rutas.agregar_vertice(codigo)
             if ciudad in dict_aeropuertos: dict_aeropuertos[ciudad].append(codigo)
             else: dict_aeropuertos[ciudad] = [codigo]
+            coordenadas[codigo] = (lat, lon.rstrip('\n'))
     with open(ruta_vuelos, 'r') as f_vuelos:
         for linea in f_vuelos:
             i, j, tiempo, precio, vuelos = linea.split(',')
@@ -52,10 +56,9 @@ def validar_entrada(entrada): # Faltan validar cosas
     elif entrada[0] == COMANDOS[2]:
         origen, destino = ' '.join(entrada[1:]).split(',')
         return camino_escalas(origen, destino)
-    elif entrada[0] == COMANDOS[3]:
-        return nueva_aerolinea(entrada[1])
-    elif entrada[0] == COMANDOS[4]:
-        return centralidad_aprox(int(entrada[1]))
+    elif entrada[0] == COMANDOS[3]: return nueva_aerolinea(entrada[1])
+    elif entrada[0] == COMANDOS[4]: return centralidad_aprox(int(entrada[1]))
+    elif entrada[0] == COMANDOS[5]: return exportar_kml(entrada[1])
     elif entrada[0] == COMANDOS[-1]: return
 
 '''********************************************************
@@ -86,7 +89,7 @@ def camino_escalas(origen, destino):
     ''' Betweeness Centrality '''
 
 
-def centralidad_aprox(n): # Checkeaer si cent_random_walks está bien implementado
+def centralidad_aprox(n): # Checkear si cent_random_walks está bien implementado
     ''' Betweeness Centrality aprox '''
     cent = cent_random_walks(grafo_vuelos, 10, 10, frecuencia)
     aux = [(k, v) for k, v in cent.items()]
@@ -118,7 +121,31 @@ def nueva_aerolinea(ruta):
 #def itinerario(ruta)
     ''' Orden Topológico '''
 
-#def exportar_kml(archivo)
+def exportar_kml(archivo):
+    intro = ['<?xml version="1.0" encoding="UTF-8"?>\n', '<kml xmlns="http://www.opengis.net/kml/2.2">\n',\
+'\t<Document>\n', '\t\t<name>KML de ejemplo</name>\n', '\t\t<description>Un ejemplo introductorio para mostrar la\
+sintaxis KML.</description>\n']
+    fin = ['\t</Document>\n', '</kml>\n']
+    aeropuertos = ultima_salida.split('->') # Hacer validaciones correspondientes
+    with open(archivo, 'w') as f:
+        f.writelines(intro)
+        for a in aeropuertos:
+            f.write(f'\t\t<Placemark>\n\t\t\t<name>{a}</name>\n\t\t\t<Point>\n\
+\t\t\t\t<coordinates>{", ".join(coordenadas[a])}</coordinates>\n\
+\t\t\t</Point>\n\t\t</Placemark>')
+        for i in range(len(aeropuertos)-1):
+            f.write(f'\t\t<Placemark>\n\t\t\t<LineString>\n\
+\t\t\t\t<coordinates>{", ".join(coordenadas[aeropuertos[i]])} {", ".join(coordenadas[aeropuertos[i+1]])}</coordinates>\n\
+\t\t\t</LineString>\n\t\t</Placemark>\n')
+        f.writelines(fin)
+
+
+
+
+
+
+
+
 
 '''********************************************************
 *                 FUNCIONES AUXILIARES                    *
