@@ -125,7 +125,7 @@ def vacaciones(origen, n):
         recorrido = ciclo_largo_n(grafo_vuelos, aeropuerto, n+1)
         if recorrido: break
     if not recorrido:
-        print("No existe el camino.")
+        print("No se encontró recorrido.")
         return None
     salida = ""
     for a in recorrido[:-1]: salida += a + ' -> '
