@@ -42,7 +42,8 @@ def cargar_datos(argv, dict_aeropuertos, grafo_vuelos):
             i, j, tiempo, precio, vuelos = linea.split(',')
             grafo_vuelos.agregar_arista(i, j, (int(tiempo), int(precio), int(vuelos))) # El peso es una tupla
 
-def validar_entrada(entrada): # Faltan validar cosas. Ver si se puede direccionar con un dict de funciones. Leer consideraciones.txt
+def validar_entrada(entrada): # Ponerlo más lindo. Ver si se puede direccionar con un dict de funciones.
+                              # Leer consideraciones.txt
     if not entrada[0] in COMANDOS: print("El comando", entrada[0], "no existe.")
     if entrada[0] == COMANDOS[0]: listar_operaciones()
     elif entrada[0] == COMANDOS[1]:
