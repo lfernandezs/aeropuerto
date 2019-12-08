@@ -3,7 +3,7 @@ from grafo import Grafo
 from biblioteca import *
 
 COMANDOS = ("listar_operaciones", "camino_mas", "camino_escalas", "nueva_aerolinea", "centralidad_aprox", "exportar_kml",
-"vacaciones", "salir")
+"vacaciones", "itinerario", "salir")
 
 ''' Variables Globales '''
 dict_aeropuertos = {}
@@ -27,7 +27,7 @@ def main(argv, dict_aeropuertos, grafo_vuelos):
 
 def cargar_datos(argv, dict_aeropuertos, grafo_vuelos):
     ''' Carga los destinos en un diccionario con sus aeropuertos
-    como valor y los vuelos en un grafo.'''
+    como valor y los vuelos en un grafo no dirigido.'''
     ruta_aeropuertos = argv[1]
     ruta_vuelos = argv[2]
     with open(ruta_aeropuertos, 'r') as f_aeropuertos:
@@ -57,6 +57,7 @@ def validar_entrada(entrada): # Faltan validar cosas. Ver si se puede direcciona
     elif entrada[0] == COMANDOS[6]:
         origen, n = ' '.join(entrada[1:]).split(',')
         return vacaciones(origen, int(n))
+    elif entrada[0] == COMANDOS[7]: itinerario(entrada[1])
     return None
 
 '''********************************************************
@@ -132,8 +133,21 @@ def vacaciones(origen, n):
     print(salida)
     return salida
 
-#def itinerario(ruta)
+def itinerario(ruta):
     ''' Orden Topológico '''
+    with open(ruta, 'r') as f:
+        grafo = Grafo()
+        ciudades_a_visitar = f.readline().rstrip('\n').split(',')
+        for ciudad in ciudades_a_visitar: grafo.agregar_vertice(ciudad)
+        for linea in f:
+            ciudad_i, ciudad_j = linea.rstrip('\n').split(',')
+            grafo.agregar_arista(ciudad_i, ciudad_j, None)
+        orden_posible = orden_topologico_dfs(grafo)
+        print(orden_posible) # Arreglar esto
+        for i in range(len(orden_posible) - 1):
+            camino_mas("rapido", orden_posible[i], orden_posible[i+1])
+    return None # Implementar lista_a_str
+
 
 def exportar_kml(archivo):
     print(ultima_salida)

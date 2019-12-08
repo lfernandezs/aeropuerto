@@ -1,6 +1,6 @@
 from grafo import Grafo
 from pila import Pila
-from biblioteca import bfs, dfs, orden_topologico_bfs, orden_topologico_dfs, dijkstra, cent_random_walks
+from biblioteca import bfs, dfs, orden_topologico_bfs, _orden_topologico_dfs, dijkstra, cent_random_walks
 from testing import print_test, print_titulo
 
 def peso_func(x): return x
@@ -259,7 +259,7 @@ def prueba_orden_topologico():
     pila = Pila()
     for v in g:
         if v not in visitados:
-            orden_topologico_dfs(g, v, pila, visitados)
+            _orden_topologico_dfs(g, v, pila, visitados)
     print("DFS:", pila.pila_a_lista())
 
 def prueba_dijkstra():

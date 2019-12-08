@@ -52,11 +52,18 @@ def orden_topologico_bfs(grafo):
     if len(resul) == len(grafo): return resul
     else: return None # Hay ciclo
 
-def orden_topologico_dfs(grafo, v, pila, visitados):
+def orden_topologico_dfs(grafo):
+    visitados = set()
+    pila = Pila()
+    for v in grafo:
+        if v not in visitados: _orden_topologico_dfs(grafo, v, pila, visitados)
+    return pila.pila_a_lista()
+
+def _orden_topologico_dfs(grafo, v, pila, visitados):
     visitados.add(v)
     for w in grafo.adyacentes(v):
         if w not in visitados:
-            orden_topologico_dfs(grafo, w, pila, visitados)
+            _orden_topologico_dfs(grafo, w, pila, visitados)
     pila.apilar(v)
 
 def dijkstra(grafo, origen, peso_func):
