@@ -59,7 +59,7 @@ def orden_topologico_dfs(grafo, v, pila, visitados):
             orden_topologico_dfs(grafo, w, pila, visitados)
     pila.apilar(v)
 
-def dijkstra(grafo, origen, peso_func): # función de comparación
+def dijkstra(grafo, origen, peso_func):
     ''' La funcion de comparacion recibe (distancia, vertice) '''
     dist = {}
     padre = {}
@@ -114,6 +114,23 @@ def cent_random_walks(grafo, k, l, peso_func):
             if not origen: break
             cent[origen] += 1
     return cent
+
+def ciclo_largo_n(grafo, origen, n):
+    visitados = set()
+    camino_actual = [origen]
+    return _ciclo_largo_n(grafo, origen, origen, n, visitados, camino_actual)
+
+def _ciclo_largo_n(grafo, v, origen, n, visitados, camino_actual):
+    visitados.add(v)
+    if len(camino_actual) == n:
+        if origen in grafo.adyacentes(v): return camino_actual
+        return None
+    for w in grafo.adyacentes(v):
+        if w in visitados: continue
+        camino = _ciclo_largo_n(grafo, w, origen, n , visitados, camino_actual + [w])
+        if camino: return camino
+    visitados.remove(v)
+    return None
 
 
 
