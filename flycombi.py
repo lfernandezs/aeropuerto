@@ -2,8 +2,8 @@ import sys
 from grafo import Grafo
 from biblioteca import *
 
-COMANDOS = ("listar_operaciones", "camino_mas", "camino_escalas", "nueva_aerolinea", "centralidad_aprox", "exportar_kml",
-"vacaciones", "itinerario", "centralidad", "salir")
+COMANDOS = ["listar_operaciones", "camino_mas", "camino_escalas", "nueva_aerolinea",
+"centralidad", "centralidad_aprox", "vacaciones", "itinerario", "exportar_kml", "salir"]
 
 ''' Variables Globales '''
 dict_aeropuertos = {}
@@ -17,13 +17,10 @@ ultima_salida = "" # Ir actualizando esto
 
 def main(argv, dict_aeropuertos, grafo_vuelos):
     global ultima_salida
-    # Cargar datos
     cargar_datos(argv, dict_aeropuertos, grafo_vuelos)
-    # Valido la entrada
-    entrada = ""
-    while entrada != "salir":
+    while ultima_salida != "salir":
         entrada = input("Ingrese un comando: ")
-        ultima_salida = validar_entrada(entrada.split(' '))
+        ultima_salida = validar_entrada(entrada)
 
 def cargar_datos(argv, dict_aeropuertos, grafo_vuelos):
     ''' Carga los destinos en un diccionario con sus aeropuertos
@@ -42,25 +39,25 @@ def cargar_datos(argv, dict_aeropuertos, grafo_vuelos):
             i, j, tiempo, precio, vuelos = linea.split(',')
             grafo_vuelos.agregar_arista(i, j, (int(tiempo), int(precio), int(vuelos))) # El peso es una tupla
 
-def validar_entrada(entrada): # Ponerlo más lindo. Ver si se puede direccionar con un dict de funciones.
-                              # Leer consideraciones.txt
-    if not entrada[0] in COMANDOS: print("El comando", entrada[0], "no existe.")
-    if entrada[0] == COMANDOS[0]: listar_operaciones()
-    elif entrada[0] == COMANDOS[1]:
-        modo, origen, destino = ' '.join(entrada[1:]).split(',')
-        return camino_mas(modo, origen, destino)
-    elif entrada[0] == COMANDOS[2]:
-        origen, destino = ' '.join(entrada[1:]).split(',')
-        return camino_escalas(origen, destino)
-    elif entrada[0] == COMANDOS[3]: nueva_aerolinea(entrada[1])
-    elif entrada[0] == COMANDOS[4]: centralidad_aprox(int(entrada[1]))
-    elif entrada[0] == COMANDOS[5]: exportar_kml(entrada[1])
-    elif entrada[0] == COMANDOS[6]:
-        origen, n = ' '.join(entrada[1:]).split(',')
-        return vacaciones(origen, int(n))
-    elif entrada[0] == COMANDOS[7]: itinerario(entrada[1])
-    elif entrada[0] == COMANDOS[8]: centralidad(int(entrada[1]))
+def validar_entrada(entrada):
+    entrada = entrada.split(' ')
+    comando = entrada[0]
+    opciones = ' '.join(entrada[1:]).split(',')
+    print(opciones)
+    if comando == "listar_operaciones": listar_operaciones()
+    elif comando == "camino_mas": return camino_mas(opciones[0], opciones[1], opciones[2])
+    elif comando == "camino_escalas": return camino_escalas(opciones[0], opciones[1])
+    elif comando == "nueva_aerolinea": nueva_aerolinea(opciones[0])
+    elif comando == "centralidad": centralidad(int(opciones[0]))
+    elif comando == "centralidad_aprox": centralidad_aprox(int(opciones[0]))
+    elif comando == "vacaciones": return vacaciones(opciones[0], int(opciones[1]))
+    elif comando == "itinerario": return itinerario(opciones[0])
+    elif comando == "exportar_kml": exportar_kml(opciones[0])
+    elif comando == "salir": return "salir"
+    else: print_error(f"El comando {comando} no existe.\n")
     return None
+
+    
 
 '''********************************************************
 *               IMPLEMENTACIÓN DE COMANDOS                *
@@ -72,41 +69,27 @@ def listar_operaciones():
 def camino_mas(modo, origen, destino):
     ''' Dijkstra '''
     modos = {'barato':barato, 'rapido':rapido}
-    if not modo in modos or not origen in dict_aeropuertos or not destino in dict_aeropuertos: return print_error(COMANDOS[1])
-    trayecto = obtener_camino(origen, destino, dijkstra, modos[modo])
-    salida = ""
-    for v in trayecto[:0:-1]: salida += v + ' -> '
-    salida += trayecto[0]
-    print(salida)
-    return salida
+    if not modo in modos or not origen in dict_aeropuertos or not destino in dict_aeropuertos: return print_error(f"Error en {COMANDOS[1]}")
+    recorrido = obtener_recorrido(origen, destino, dijkstra, modos[modo])
+    return print_recorrido(recorrido, True)
 
 def camino_escalas(origen, destino):
     ''' BFS '''
     if not origen in dict_aeropuertos or not destino in dict_aeropuertos: return print_error(COMANDOS[2])
-    trayecto = obtener_camino(origen, destino, bfs, None)
-    salida = ""
-    for v in trayecto[:0:-1]: salida += v + ' -> '
-    salida += trayecto[0]
-    print(salida)
-    return salida
+    recorrido = obtener_recorrido(origen, destino, bfs, None)
+    return print_recorrido(recorrido, True)
 
 def centralidad(n):
     ''' Betweeness Centrality '''
     cent = betweeness_centrality(grafo_vuelos, frecuencia_inv)
-    aux = [(k, v) for k, v in cent.items()]
-    aux = sorted(aux, key=lambda x: x[1], reverse=True)
-    for i in range(n-1): print(aux[i][0], end=', ')
-    print(aux[n-1][0])
+    print_centralidad(cent, n)
 
 
 def centralidad_aprox(n): # Checkear si cent_random_walks está bien implementado
     ''' Betweeness Centrality aprox '''
     if n > len(grafo_vuelos): n = len(grafo_vuelos)
     cent = cent_random_walks(grafo_vuelos, 50, 10, frecuencia)
-    aux = [(k, v) for k, v in cent.items()]
-    aux = sorted(aux, key=lambda x: x[1], reverse=True)
-    for i in range(n-1): print(aux[i][0], end=', ')
-    print(aux[n-1][0])
+    print_centralidad(cent, n)
 
 #def pagerank(n)
     ''' Pagerank '''
@@ -134,11 +117,7 @@ def vacaciones(origen, n):
     if not recorrido:
         print("No se encontró recorrido.")
         return None
-    salida = ""
-    for a in recorrido[:-1]: salida += a + ' -> '
-    salida += recorrido[-1]
-    print(salida)
-    return salida
+    return print_recorrido(recorrido, False)
 
 def itinerario(ruta):
     ''' Orden Topológico '''
@@ -149,11 +128,15 @@ def itinerario(ruta):
         for linea in f:
             ciudad_i, ciudad_j = linea.rstrip('\n').split(',')
             grafo.agregar_arista(ciudad_i, ciudad_j, None)
-        orden_posible = orden_topologico_dfs(grafo)
-        print(orden_posible) # Arreglar esto
+        orden_posible = orden_topologico_bfs(grafo) # Preguntar como hago para ver si hay ciclo con O.T dfs
+        if not orden_posible:
+            print_error("No hay orden posible.\n")
+            return None
+        print(', '.join(orden_posible))
+        recorrido = []
         for i in range(len(orden_posible) - 1):
-            camino_escalas(orden_posible[i], orden_posible[i+1])
-    return None # Implementar lista_a_str
+            recorrido.append(camino_escalas(orden_posible[i], orden_posible[i+1]))
+    return ' -> '.join(recorrido) # Ver como exportar kml.
 
 
 def exportar_kml(archivo):
@@ -183,7 +166,7 @@ sintaxis KML.</description>\n']
 ********************************************************'''
 
 ''' validaciones '''
-def print_error(comando): print(f"Error en comando {comando}")
+def print_error(mensaje): sys.stderr.write(mensaje)
 
 ''' camino_escalas '''
 def rapido(peso): return peso[0]
@@ -194,7 +177,7 @@ def frecuencia(peso): return peso[2]
 
 def frecuencia_inv(peso): return (1000 / frecuencia(peso))
 
-def obtener_camino(origen, destino, func, extra): # func es el algoritmo que se utiliza para obtener el camino.
+def obtener_recorrido(origen, destino, func, extra): # func es el algoritmo que se utiliza para obtener el camino.
     aerop_destino = None
     padres = None
     dist = float('inf')
@@ -211,5 +194,17 @@ def obtener_camino(origen, destino, func, extra): # func es el algoritmo que se 
         trayecto.append(aerop_destino)
         aerop_destino = padres[aerop_destino]
     return trayecto
+
+def print_recorrido(recorrido, reversed):
+    if reversed: recorrido = recorrido[::-1]
+    resul = ' -> '.join(recorrido)
+    print(resul)
+    return resul
+
+def print_centralidad(cent, n):
+    aux = [(k, v) for k, v in cent.items()]
+    aux = sorted(aux, key=lambda x: x[1], reverse=True)
+    for i in range(n-1): print(aux[i][0], end=', ')
+    print(aux[n-1][0])
 
 main(sys.argv, dict_aeropuertos, grafo_vuelos)
