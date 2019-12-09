@@ -3,7 +3,7 @@ from grafo import Grafo
 from biblioteca import *
 
 COMANDOS = ("listar_operaciones", "camino_mas", "camino_escalas", "nueva_aerolinea", "centralidad_aprox", "exportar_kml",
-"vacaciones", "itinerario", "salir")
+"vacaciones", "itinerario", "centralidad", "salir")
 
 ''' Variables Globales '''
 dict_aeropuertos = {}
@@ -59,6 +59,7 @@ def validar_entrada(entrada): # Ponerlo más lindo. Ver si se puede direccionar 
         origen, n = ' '.join(entrada[1:]).split(',')
         return vacaciones(origen, int(n))
     elif entrada[0] == COMANDOS[7]: itinerario(entrada[1])
+    elif entrada[0] == COMANDOS[8]: centralidad(int(entrada[1]))
     return None
 
 '''********************************************************
@@ -89,8 +90,13 @@ def camino_escalas(origen, destino):
     print(salida)
     return salida
 
-#def centralidad(n)
+def centralidad(n):
     ''' Betweeness Centrality '''
+    cent = betweeness_centrality(grafo_vuelos, frecuencia_inv)
+    aux = [(k, v) for k, v in cent.items()]
+    aux = sorted(aux, key=lambda x: x[1], reverse=True)
+    for i in range(n-1): print(aux[i][0], end=', ')
+    print(aux[n-1][0])
 
 
 def centralidad_aprox(n): # Checkear si cent_random_walks está bien implementado
@@ -123,7 +129,7 @@ def nueva_aerolinea(ruta):
 def vacaciones(origen, n):
     ''' Backtracking '''
     for aeropuerto in dict_aeropuertos[origen]:
-        recorrido = ciclo_largo_n(grafo_vuelos, aeropuerto, n+1)
+        recorrido = ciclo_largo_n(grafo_vuelos, aeropuerto, n)
         if recorrido: break
     if not recorrido:
         print("No se encontró recorrido.")
@@ -146,7 +152,7 @@ def itinerario(ruta):
         orden_posible = orden_topologico_dfs(grafo)
         print(orden_posible) # Arreglar esto
         for i in range(len(orden_posible) - 1):
-            camino_mas("rapido", orden_posible[i], orden_posible[i+1])
+            camino_escalas(orden_posible[i], orden_posible[i+1])
     return None # Implementar lista_a_str
 
 
@@ -163,7 +169,7 @@ sintaxis KML.</description>\n']
         for a in aeropuertos:
             f.write(f'\t\t<Placemark>\n\t\t\t<name>{a}</name>\n\t\t\t<Point>\n\
 \t\t\t\t<coordinates>{", ".join(coordenadas[a])}</coordinates>\n\
-\t\t\t</Point>\n\t\t</Placemark>')
+\t\t\t</Point>\n\t\t</Placemark>\n')
         for i in range(len(aeropuertos)-1):
             f.write(f'\t\t<Placemark>\n\t\t\t<LineString>\n\
 \t\t\t\t<coordinates>{", ".join(coordenadas[aeropuertos[i]])} {", ".join(coordenadas[aeropuertos[i+1]])}</coordinates>\n\
@@ -186,6 +192,8 @@ def barato(peso): return peso[1]
 
 def frecuencia(peso): return peso[2]
 
+def frecuencia_inv(peso): return (1000 / frecuencia(peso))
+
 def obtener_camino(origen, destino, func, extra): # func es el algoritmo que se utiliza para obtener el camino.
     aerop_destino = None
     padres = None
@@ -197,7 +205,7 @@ def obtener_camino(origen, destino, func, extra): # func es el algoritmo que se 
             else: padres_aux, dist_aux = func(grafo_vuelos, v)
             if dist_aux[w] < dist:
                 aerop_destino = w
-                dist = dist_aux
+                dist = dist_aux[w]
                 padres = padres_aux
     while aerop_destino != None:
         trayecto.append(aerop_destino)

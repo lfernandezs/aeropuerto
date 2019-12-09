@@ -2,6 +2,7 @@ from grafo import Grafo
 from cola import Cola
 from pila import Pila
 from heap import Heap
+import random
 
 def bfs(grafo,  origen):
     visitados = set()
@@ -117,10 +118,57 @@ def cent_random_walks(grafo, k, l, peso_func):
             pesos = {}
             for v in grafo.adyacentes(origen):
                 if v != None: pesos[v] = grafo.peso_arista(origen, v, peso_func)
-            origen = grafo.vertice_aleatorio_peso(pesos)
+            origen = elemento_aleatorio_peso(pesos)
             if not origen: break
             cent[origen] += 1
     return cent
+
+def elemento_aleatorio_peso(pesos):
+    ''' Devuelve un elemento aleatorio, priorizando los que tengan más peso.
+    pesos: diccionario de elemento:peso. '''
+    total = sum(pesos.values())
+    rand = random.uniform(0, total)
+    acum = 0
+    for elemento, peso in pesos.items():
+        if acum + peso >= rand:
+            return elemento
+        acum += peso
+
+def betweeness_centrality(grafo, peso_func):
+    cent = {}
+    for v in grafo: cent[v] = 0
+    for v in grafo:
+        padre, dist = dijkstra(grafo, v, peso_func)
+        cent_aux = {}
+        for w in grafo: cent_aux[w] = 0
+        vertices_ordenados = ordenar_vertices(grafo, dist) # Probar con mergesort
+        for w in vertices_ordenados:
+            if padre[w]: cent_aux[padre[w]] += 1 + cent_aux[w]
+        for w in grafo:
+            if w == v: continue
+            cent[w] += cent_aux[w]
+    return cent
+
+def ordenar_vertices(grafo, dist):
+    vertices = [v for v in grafo]
+    return quicksort(vertices, dist)
+	
+def quicksort(lista, dist):
+	if len(lista) < 2:
+		return lista
+	mayores, med, menores = particionar(lista, dist)
+	return quicksort(mayores, dist) + [med] + quicksort(menores, dist)
+
+def particionar(lista, dist):
+    pivote = lista[0]
+    menores = []
+    mayores = []
+    for i in range(1, len(lista)):
+        if dist[lista[i]] < dist[pivote]:
+            menores.append(lista[i])
+        else:
+            mayores.append(lista[i])
+    return mayores, pivote, menores
 
 def ciclo_largo_n(grafo, origen, n):
     visitados = set()
@@ -130,7 +178,7 @@ def ciclo_largo_n(grafo, origen, n):
 def _ciclo_largo_n(grafo, v, origen, n, visitados, camino_actual):
     visitados.add(v)
     if len(camino_actual) == n:
-        if origen in grafo.adyacentes(v): return camino_actual
+        if origen in grafo.adyacentes(v): return camino_actual + [origen]
         return None
     for w in grafo.adyacentes(v):
         if w in visitados: continue

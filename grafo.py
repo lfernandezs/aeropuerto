@@ -70,7 +70,7 @@ class Grafo:
         if self.cantidad == 0: raise ValueError("El grafo no tiene vértices")
         return random.choice(list(self.grafo))
 
-    def vertice_aleatorio_peso(self, pesos):
+    def adyacente_aleatorio_peso(self, pesos):
         ''' Devuelve un vértice aleatorio, priorizando los que tengan aristas de más peso.
         pesos en un diccionario de vertice_vecino:peso. '''
         total = sum(pesos.values())
