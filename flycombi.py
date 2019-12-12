@@ -1,9 +1,11 @@
+#!/usr/bin/python3
+
 import sys
 from grafo import Grafo
 from biblioteca import *
 
 COMANDOS = ["listar_operaciones", "camino_mas", "camino_escalas", "nueva_aerolinea",
-"centralidad", "centralidad_aprox", "vacaciones", "itinerario", "exportar_kml", "salir"]
+"centralidad", "centralidad_aprox", "vacaciones", "itinerario", "exportar_kml"]
 
 
 '''********************************************************
@@ -16,9 +18,8 @@ def main(argv):
     coordenadas = {}
     ultima_salida = None
     cargar_datos(argv, dict_aeropuertos, grafo_vuelos, coordenadas)
-    while ultima_salida != "salir":
-        entrada = input("Ingrese un comando: ")
-        validar_entrada(entrada, dict_aeropuertos, grafo_vuelos, coordenadas, ultima_salida)
+    for line in sys.stdin:
+        ultima_salida = validar_entrada(line.rstrip('\n'), dict_aeropuertos, grafo_vuelos, coordenadas, ultima_salida)
 
 def cargar_datos(argv, dict_aeropuertos, grafo_vuelos, coordenadas):
     ''' Carga los destinos en un diccionario con sus aeropuertos
@@ -41,7 +42,6 @@ def validar_entrada(entrada, dict_aeropuertos, grafo_vuelos, coordenadas, ultima
     entrada = entrada.split(' ')
     comando = entrada[0]
     opciones = ' '.join(entrada[1:]).split(',')
-    print(opciones)
     if comando == "listar_operaciones": listar_operaciones()
     elif comando == "camino_mas": return camino_mas(opciones[0], opciones[1], opciones[2], dict_aeropuertos, grafo_vuelos)
     elif comando == "camino_escalas": return camino_escalas(opciones[0], opciones[1], dict_aeropuertos, grafo_vuelos)
@@ -51,11 +51,8 @@ def validar_entrada(entrada, dict_aeropuertos, grafo_vuelos, coordenadas, ultima
     elif comando == "vacaciones": return vacaciones(opciones[0], int(opciones[1]), dict_aeropuertos, grafo_vuelos)
     elif comando == "itinerario": return itinerario(opciones[0], dict_aeropuertos, grafo_vuelos)
     elif comando == "exportar_kml": exportar_kml(opciones[0], ultima_salida, coordenadas)
-    elif comando == "salir":
-        ultima_salida = "salir"
-        return
     else: print_error(f"El comando {comando} no existe.\n")
-    ultima_salida = None
+    return None
 
     
 
@@ -64,7 +61,7 @@ def validar_entrada(entrada, dict_aeropuertos, grafo_vuelos, coordenadas, ultima
 ********************************************************'''
 
 def listar_operaciones():
-    for comando in COMANDOS: print(comando)
+    for i in range(len(COMANDOS) - 1): print(COMANDOS[i+1])
 
 def camino_mas(modo, origen, destino, dict_aeropuertos, grafo_vuelos):
     ''' Dijkstra '''
@@ -75,7 +72,7 @@ def camino_mas(modo, origen, destino, dict_aeropuertos, grafo_vuelos):
 
 def camino_escalas(origen, destino, dict_aeropuertos, grafo_vuelos):
     ''' BFS '''
-    if not origen in dict_aeropuertos or not destino in dict_aeropuertos: return print_error(COMANDOS[2])
+    if not origen in dict_aeropuertos or not destino in dict_aeropuertos: return print_error(f"Error en {COMANDOS[2]}")
     recorrido = obtener_recorrido(origen, destino, bfs, None, dict_aeropuertos, grafo_vuelos)
     return print_recorrido(recorrido, True)
 
@@ -85,14 +82,11 @@ def centralidad(n, grafo_vuelos):
     print_centralidad(cent, n)
 
 
-def centralidad_aprox(n, grafo_vuelos): # Checkear si cent_random_walks está bien implementado
+def centralidad_aprox(n, grafo_vuelos):
     ''' Betweeness Centrality aprox '''
     if n > len(grafo_vuelos): n = len(grafo_vuelos)
-    cent = cent_random_walks(grafo_vuelos, 50, 10, frecuencia)
+    cent = cent_random_walks(grafo_vuelos, 100, 20, frecuencia)
     print_centralidad(cent, n)
-
-#def pagerank(n)
-    ''' Pagerank '''
 
 def nueva_aerolinea(ruta, grafo_vuelos):
     ''' Árbol de tendido mínimo '''
@@ -100,14 +94,9 @@ def nueva_aerolinea(ruta, grafo_vuelos):
         rutas = mst_prim(grafo_vuelos, barato) 
         for v in rutas:
             for w in rutas.adyacentes(v):
-                f.write(f'{v}, {w}\n')
+                tiempo, precio, vuelos = grafo_vuelos.peso_arista(v, w, peso)
+                f.write(f'{v},{w},{tiempo},{precio},{vuelos}\n')
     print('OK')
-
-#def recorrer_mundo(origen)
-    '''BackTracking?'''
-
-#def recorrer_mundo_aprox(origen)
-    '''Greedy?'''
 
 def vacaciones(origen, n, dict_aeropuertos, grafo_vuelos):
     ''' Backtracking '''
@@ -128,7 +117,7 @@ def itinerario(ruta, dict_aeropuertos, grafo_vuelos):
         for linea in f:
             ciudad_i, ciudad_j = linea.rstrip('\n').split(',')
             grafo.agregar_arista(ciudad_i, ciudad_j, None)
-        orden_posible = orden_topologico_bfs(grafo) # Preguntar como hago para ver si hay ciclo con O.T dfs
+        orden_posible = orden_topologico_bfs(grafo)
         if not orden_posible:
             print_error("No hay orden posible.\n")
             return None
@@ -136,27 +125,39 @@ def itinerario(ruta, dict_aeropuertos, grafo_vuelos):
         recorrido = []
         for i in range(len(orden_posible) - 1):
             recorrido.append(camino_escalas(orden_posible[i], orden_posible[i+1], dict_aeropuertos, grafo_vuelos))
-    return ' -> '.join(recorrido) # Ver como exportar kml.
+    return ' -> '.join(recorrido)
 
 
 def exportar_kml(archivo, ultima_salida, coordenadas):
     print(ultima_salida)
-    intro = ['<?xml version="1.0" encoding="UTF-8"?>\n', '<kml xmlns="http://www.opengis.net/kml/2.2">\n',\
-'\t<Document>\n', '\t\t<name>KML de ejemplo</name>\n', '\t\t<description>Un ejemplo introductorio para mostrar la\
-sintaxis KML.</description>\n']
-    fin = ['\t</Document>\n', '</kml>\n']
+    intro = '\
+<?xml version="1.0" encoding="UTF-8"?>\n\
+<kml xmlns="http://www.opengis.net/kml/2.2">\n\
+    <Document>\n\
+        <name>KML de ejemplo</name>\n\
+        <description>Un ejemplo introductorio para mostrar lasintaxis KML.</description>\n'
+    fin = '\
+    </Document>\n\
+</kml>'
     if not ultima_salida: return print("No se pudo exportar kml", file=sys.stderr)
     aeropuertos = ultima_salida.split(' -> ')
     with open(archivo, 'w') as f:
-        f.writelines(intro)
+        f.write(intro)
         for a in aeropuertos:
-            f.write(f'\t\t<Placemark>\n\t\t\t<name>{a}</name>\n\t\t\t<Point>\n\
-\t\t\t\t<coordinates>{", ".join(coordenadas[a])}</coordinates>\n\
-\t\t\t</Point>\n\t\t</Placemark>\n')
+            f.write(f'\
+        <Placemark>\n\
+            <name>{a}</name>\n\
+            <Point>\n\
+                <coordinates>{", ".join(coordenadas[a])}</coordinates>\n\
+            </Point>\n\
+        </Placemark>\n\n')
         for i in range(len(aeropuertos)-1):
-            f.write(f'\t\t<Placemark>\n\t\t\t<LineString>\n\
-\t\t\t\t<coordinates>{", ".join(coordenadas[aeropuertos[i]])} {", ".join(coordenadas[aeropuertos[i+1]])}</coordinates>\n\
-\t\t\t</LineString>\n\t\t</Placemark>\n')
+            f.write(f'\
+        <Placemark>\n\
+            <LineString>\n\
+                <coordinates>{", ".join(coordenadas[aeropuertos[i]])} {", ".join(coordenadas[aeropuertos[i+1]])}</coordinates>\n\
+            </LineString>\n\
+        </Placemark>\n\n')
         f.writelines(fin)
     print("OK")
 
@@ -165,17 +166,17 @@ sintaxis KML.</description>\n']
 *                 FUNCIONES AUXILIARES                    *
 ********************************************************'''
 
-''' validaciones '''
 def print_error(mensaje): sys.stderr.write(mensaje)
 
-''' camino_escalas '''
+def peso(peso): return peso
+
 def rapido(peso): return peso[0]
 
 def barato(peso): return peso[1]
 
 def frecuencia(peso): return peso[2]
 
-def frecuencia_inv(peso): return (1000 / frecuencia(peso))
+def frecuencia_inv(peso): return (1000 / frecuencia(peso)) # Divido 1000 porque Python divide mal por números chicos
 
 def obtener_recorrido(origen, destino, func, extra, dict_aeropuertos, grafo_vuelos): # func es el algoritmo que se utiliza para obtener el camino.
     aerop_destino = None

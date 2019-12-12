@@ -141,7 +141,7 @@ def betweeness_centrality(grafo, peso_func):
         padre, dist = dijkstra(grafo, v, peso_func)
         cent_aux = {}
         for w in grafo: cent_aux[w] = 0
-        vertices_ordenados = ordenar_vertices(grafo, dist) # Probar con mergesort
+        vertices_ordenados = ordenar_vertices(grafo, dist) # 
         for w in vertices_ordenados:
             if padre[w]: cent_aux[padre[w]] += 1 + cent_aux[w]
         for w in grafo:
@@ -153,7 +153,7 @@ def ordenar_vertices(grafo, dist):
     vertices = [v for v in grafo]
     return quicksort(vertices, dist)
 	
-def quicksort(lista, dist):
+def quicksort(lista, dist): 
 	if len(lista) < 2:
 		return lista
 	mayores, med, menores = particionar(lista, dist)
