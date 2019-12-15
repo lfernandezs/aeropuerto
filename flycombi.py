@@ -125,7 +125,9 @@ def itinerario(ruta, dict_aeropuertos, grafo_vuelos):
         recorrido = []
         for i in range(len(orden_posible) - 1):
             recorrido.append(camino_escalas(orden_posible[i], orden_posible[i+1], dict_aeropuertos, grafo_vuelos))
-    return ' -> '.join(recorrido)
+    for i in range(len(recorrido)):
+        recorrido[i] = recorrido[i][:-7]
+    return print(' -> '.join(recorrido))
 
 
 def exportar_kml(archivo, ultima_salida, coordenadas):
