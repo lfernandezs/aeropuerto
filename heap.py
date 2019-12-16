@@ -1,5 +1,5 @@
 class Heap:
-    ''' Representa un heap, con operaciones de encolar, desencolar.
+    ''' Representa un heap de máximos, con operaciones de encolar, desencolar.
     Cumple la propiedad de heap. '''
 
     def __init__(self, cmp_func):

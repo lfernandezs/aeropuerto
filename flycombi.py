@@ -104,7 +104,7 @@ def vacaciones(origen, n, dict_aeropuertos, grafo_vuelos):
         recorrido = ciclo_largo_n(grafo_vuelos, aeropuerto, n)
         if recorrido: break
     if not recorrido:
-        print("No se encontró recorrido.")
+        print("No se encontro recorrido")
         return None
     return print_recorrido(recorrido, False)
 
@@ -127,7 +127,7 @@ def itinerario(ruta, dict_aeropuertos, grafo_vuelos):
             recorrido.append(camino_escalas(orden_posible[i], orden_posible[i+1], dict_aeropuertos, grafo_vuelos))
     for i in range(len(recorrido)):
         recorrido[i] = recorrido[i][:-7]
-    return print(' -> '.join(recorrido))
+    return ' -> '.join(recorrido)
 
 
 def exportar_kml(archivo, ultima_salida, coordenadas):
@@ -180,6 +180,11 @@ def frecuencia(peso): return peso[2]
 
 def frecuencia_inv(peso): return (1000 / frecuencia(peso)) # Divido 1000 porque Python divide mal por números chicos
 
+def cmp_func(tupla1, tupla2):
+    if tupla1[1] > tupla2[1]: return -1
+    if tupla1[1] < tupla2[1]: return 1
+    return 0
+
 def obtener_recorrido(origen, destino, func, extra, dict_aeropuertos, grafo_vuelos): # func es el algoritmo que se utiliza para obtener el camino.
     aerop_destino = None
     padres = None
@@ -205,9 +210,22 @@ def print_recorrido(recorrido, reversed):
     return resul
 
 def print_centralidad(cent, n):
-    aux = [(k, v) for k, v in cent.items()]
-    aux = sorted(aux, key=lambda x: x[1], reverse=True)
-    for i in range(n-1): print(aux[i][0], end=', ')
-    print(aux[n-1][0])
+    heap = Heap(cmp_func)
+    encolados = []
+    aux = []
+    i = 0
+    for tupla in cent.items():
+        i+=1
+        heap.encolar(tupla)
+        encolados.append(tupla[0])
+        if i == n: break
+    for k in encolados: cent.pop(k)
+    for tupla in cent.items():
+        if cmp_func(tupla, heap.ver_max())*(-1) > 0:
+            heap.desencolar()
+            heap.encolar(tupla)
+    while not heap.esta_vacio():
+        aux.insert(0, heap.desencolar()[0])
+    print(', '.join(aux))
 
 main(sys.argv)
