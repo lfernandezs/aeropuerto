@@ -1,0 +1,4 @@
+Validaciones:
+No hace falta validar la cantidad de parámetros
+No hace falta validar que los archivos existan
+Las pruebas van a ser más exactas. Hay cosas que tal vez no haga falta validar.

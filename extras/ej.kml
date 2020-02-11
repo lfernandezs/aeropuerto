@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+    <Document>
+        <name>KML de ejemplo</name>
+        <description>Un ejemplo introductorio para mostrar lasintaxis KML.</description>
+        <Placemark>
+            <name>NAR</name>
+            <Point>
+                <coordinates>55, 55</coordinates>
+            </Point>
+        </Placemark>
+
+        <Placemark>
+            <name>WAC</name>
+            <Point>
+                <coordinates>40, 65</coordinates>
+            </Point>
+        </Placemark>
+
+        <Placemark>
+            <name>BAT</name>
+            <Point>
+                <coordinates>56, 60</coordinates>
+            </Point>
+        </Placemark>
+
+        <Placemark>
+            <LineString>
+                <coordinates>55, 55 40, 65</coordinates>
+            </LineString>
+        </Placemark>
+
+        <Placemark>
+            <LineString>
+                <coordinates>40, 65 56, 60</coordinates>
+            </LineString>
+        </Placemark>
+
+    </Document>
+</kml>
