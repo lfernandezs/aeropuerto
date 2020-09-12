@@ -82,5 +82,3 @@ Recibe un origen y devuelve una ruta de n destinos para visitar.
 ```
 vacaciones Narnia 5
 ```
-
-### itinerario
